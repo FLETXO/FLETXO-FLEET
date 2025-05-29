@@ -380,28 +380,6 @@
       50% { transform: translateX(5px); }
       75% { transform: translateX(-5px); }
     }
-
-    /* Countdown Timer Specific Styles */
-    .countdown-timer-card {
-      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); /* Gradient background for timer card */
-      border-radius: 20px;
-      box-shadow: var(--border-glow-strength) var(--neon-purple), inset 0 0 10px rgba(160, 80, 255, 0.3);
-      padding: 20px;
-      margin-top: 25px;
-      text-align: center;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 3.5em; /* Large font for timer */
-      font-weight: 700;
-      text-shadow: 0 0 15px var(--neon-cyan); /* Strong text glow */
-      letter-spacing: 3px; /* Spacing for digital look */
-      animation: pulseGlow 2s infinite alternate; /* Pulsing glow effect */
-    }
-
-    @keyframes pulseGlow {
-      0% { box-shadow: var(--border-glow-strength) var(--neon-purple); text-shadow: 0 0 10px var(--neon-cyan); }
-      100% { box-shadow: var(--border-glow-strength) var(--neon-blue); text-shadow: 0 0 25px var(--neon-cyan); }
-    }
   </style>
 </head>
 <body>
@@ -423,8 +401,6 @@
           </text>
         </svg>
       </div>
-
-      <div class="countdown-timer-card" id="countdownTimer">00:00</div>
 
       <div class="card">
         <div class="period-label"><i class="fa-solid fa-calendar-days"></i> Current Period</div>
@@ -470,7 +446,6 @@
   const loginButton = document.getElementById("loginButton");
   const errorBox = document.getElementById("errorBox");
   const predictorContent = document.getElementById("predictor-content");
-  const countdownTimerDisplay = document.getElementById("countdownTimer"); // New timer display element
 
   // --- Global Variables for Predictor ---
   let historyData = [];
@@ -479,8 +454,6 @@
   let lastOppositeNumber = null;
   let globalPrediction = null;
   let predictorInterval = null; // Interval for the main prediction cycle
-  let countdownSeconds = 60; // Initial countdown value (1 minute)
-  let countdownInterval = null; // Interval for the visual countdown timer
 
   // --- Device ID Management ---
   let deviceId = localStorage.getItem("deviceId");
@@ -677,22 +650,20 @@
     }
   }
 
-  // Main function to update prediction and history
-  async function updatePredictionAndTimerReset() {
+  // Main function to update prediction based on period change
+  async function updatePrediction() {
     let result = await fetchGameResult();
     
     if (!result) {
-        console.warn("No API result or API error.");
-        // If API fails, we might still want to reset timer and try again
-        resetCountdownAndPredictionCycle();
+        console.warn("No API result or API error. Retrying in 5 seconds...");
+        setTimeout(updatePrediction, 5000); // Retry after 5 seconds
         return;
     }
 
     // Only update if the period has actually changed
     if (result.issueNumber === lastFetchedPeriod) {
         // console.log("Period not changed, waiting for next period.");
-        // If period hasn't changed, just keep the timer running
-        return;
+        return; // Do nothing if the period hasn't changed
     }
 
     // If there's a pending prediction in history, update its status
@@ -732,34 +703,7 @@
 
     updateHistory();
     updateStats();
-    lastFetchedPeriod = result.issueNumber;
-
-    // Reset and start the countdown timer after a successful prediction update
-    resetCountdownAndPredictionCycle();
-  }
-
-  // Function to reset the countdown and start the next prediction cycle
-  function resetCountdownAndPredictionCycle() {
-      clearInterval(countdownInterval); // Clear any existing countdown
-      countdownSeconds = 60; // Reset to 60 seconds
-      updateCountdownDisplay(); // Update display immediately
-      countdownInterval = setInterval(() => {
-          countdownSeconds--;
-          updateCountdownDisplay();
-          if (countdownSeconds <= 0) {
-              // When countdown ends, clear it and immediately trigger a new prediction update
-              clearInterval(countdownInterval);
-              updatePredictionAndTimerReset(); // This will fetch new data and restart timer
-          }
-      }, 1000);
-  }
-
-  // Update the visual countdown display
-  function updateCountdownDisplay() {
-      const minutes = Math.floor(countdownSeconds / 60);
-      const seconds = countdownSeconds % 60;
-      countdownTimerDisplay.innerText = 
-          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    lastFetchedPeriod = result.issueNumber; // Update last fetched period
   }
 
   // Delete an entry from history
@@ -802,10 +746,12 @@
     document.getElementById("accuracy").textContent = `${accuracy}%`;
   }
 
-  // Function to start the predictor's intervals
+  // Function to start the predictor's updates
   function startPredictor() {
-    // Initial fetch and start countdown
-    updatePredictionAndTimerReset();
+    // Initial fetch
+    updatePrediction();
+    // Set an interval to check for new periods periodically (e.g., every 5 seconds)
+    predictorInterval = setInterval(updatePrediction, 5000); // Check every 5 seconds
   }
 
   // --- Initial Load ---
