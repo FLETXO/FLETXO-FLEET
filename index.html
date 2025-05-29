@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>𝗙𝗟𝗘𝗧𝗫𝗢 𝗙𝗟𝗘𝗘𝗧</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Root Variables for a Cohesive Neon Palette */
+    :root {
+      --dark-bg: #0a0d17;
+      --card-bg: #1a1f2c;
+      --text-light: #e0e6f0;
+      --text-dark: #0d1117;
+
+      --neon-cyan: #00f0ff;
+      --neon-blue: #00aaff;
+      --neon-purple: #a050ff;
+      --neon-green: #3aff95;
+      --neon-red: #ff4d4d;
+      --neon-yellow: #fff000;
+
+      --border-glow-strength: 0 0 15px;
+      --text-glow-strength: 0 0 8px;
+    }
+
+    /* Universal Box Sizing & Font Smoothing */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Body & HTML Styling */
+    body {
+      background: var(--dark-bg);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Align items to start for scrollability */
+      min-height: 100vh; /* Use min-height to allow content to push height */
+      padding: 30px 20px; /* Increased padding for better spacing */
+      overflow-y: auto; /* Allow scrolling */
+    }
+
+    /* Login Box Styles */
+    .login-container {
+      display: flex; /* Initially visible for login */
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      position: fixed; /* Cover the whole screen */
+      top: 0;
+      left: 0;
+      background: linear-gradient(135deg, #020024, #090979, #00d4ff); /* Login background */
+      z-index: 20; /* Above predictor content */
+    }
+    .login-box {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px #00ffff;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    .login-box h2 {
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: #00ffff;
+    }
+    .login-container input {
+      padding: 12px;
+      width: 100%;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #111;
+      color: #0ff;
+      outline: none;
+      box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.3);
+      transition: box-shadow 0.3s ease;
+    }
+    .login-container input:focus {
+      box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.7);
+    }
+    .login-container button {
+      background: #00ffff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      width: 100%;
+    }
+    .login-container button:hover:not(:disabled) {
+      background: #00bfbf;
+      transform: translateY(-2px);
+    }
+    .login-container button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .login-container .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 0.9em;
+      min-height: 1.5em;
+    }
+
+    /* Predictor Content Styles (initially hidden) */
+    #predictor-content {
+      display: none; /* Hidden by default */
+      width: 100%;
+      max-width: 450px; /* Match container width */
+      margin: auto;
+      padding: 0;
+      position: relative; /* For z-index */
+      z-index: 10;
+    }
+
+    /* Predictor UI Elements */
+    .container {
+      max-width: 450px;
+      width: 100%;
+      margin: auto;
+      padding: 0;
+      z-index: 10;
+      position: relative;
+    }
+
+    /* SVG Wrapper for Animated Title */
+    .wrapper {
+      text-align: center;
+      margin-bottom: 40px;
+      filter: drop-shadow(0 0 8px var(--neon-cyan));
+    }
+    .wrapper svg {
+      width: 100%;
+      height: 70px;
+    }
+    .wrapper svg text {
+      font-family: 'Orbitron', sans-serif;
+      fill: none;
+      stroke: var(--neon-cyan);
+      stroke-width: 1.5px;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: dash 5s linear infinite alternate;
+      font-size: 38px;
+      font-weight: 700;
+    }
+
+    @keyframes dash {
+      0% { stroke-dashoffset: 600; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    /* Card Styling */
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      box-shadow: var(--border-glow-strength) var(--neon-blue), inset 0 0 5px rgba(0, 255, 255, 0.1);
+      padding: 25px;
+      margin-top: 25px;
+      backdrop-filter: blur(5px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--border-glow-strength) var(--neon-purple), inset 0 0 8px rgba(160, 80, 255, 0.2);
+    }
+
+    /* Period Label & Input */
+    .period-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      color: var(--neon-cyan);
+      text-shadow: var(--text-glow-strength) var(--neon-cyan);
+    }
+    .period-label i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+    .period-input {
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      font-size: 22px;
+      font-family: 'Orbitron', sans-serif;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--neon-blue);
+      border-radius: 10px;
+      margin-bottom: 15px;
+      color: var(--neon-green);
+      box-shadow: inset 0 0 8px rgba(58, 255, 149, 0.5);
+      text-shadow: var(--text-glow-strength) var(--neon-green);
+    }
+
+    /* Prediction & Opposite Number Section */
+    .result-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      margin-top: 15px;
+      font-size: 1.1em;
+    }
+    .result-section span i {
+      margin-right: 8px;
+      color: var(--neon-cyan);
+    }
+    .big-text {
+      background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+      padding: 8px 15px;
+      border-radius: 15px;
+      color: var(--text-dark);
+      font-weight: 700;
+      text-shadow: none;
+      box-shadow: 0 0 10px rgba(58, 255, 149, 0.7);
+    }
+    .opposite-number {
+      font-size: 18px;
+      color: var(--neon-purple);
+      font-weight: 700;
+      text-shadow: var(--text-glow-strength) var(--neon-purple);
+    }
+
+    /* Dashboard Title */
+    .dashboard-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+      padding-bottom: 10px;
+      color: var(--neon-cyan);
+      text-shadow: var(--text-glow-strength) var(--neon-cyan);
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      font-size: 0.95em;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-row span:first-child {
+      display: flex;
+      align-items: center;
+      color: var(--text-light);
+    }
+    .info-row span:first-child i {
+      margin-right: 8px;
+      color: var(--neon-blue);
+    }
+    .info-row span:last-child {
+      font-weight: 700;
+      color: var(--neon-green);
+      text-shadow: var(--text-glow-strength) var(--neon-green);
+    }
+    .connected {
+      color: var(--neon-green);
+      font-weight: bold;
+      text-shadow: var(--text-glow-strength) var(--neon-green);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+      margin-top: 40px;
+      color: var(--neon-cyan);
+      text-shadow: var(--text-glow-strength) var(--neon-cyan);
+      filter: drop-shadow(0 0 5px var(--neon-cyan));
+    }
+
+    /* History Section */
+    .history-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 40px;
+      text-align: center;
+      color: var(--neon-cyan);
+      text-shadow: var(--text-glow-strength) var(--neon-cyan);
+    }
+    .history-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 18px;
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--border-glow-strength) rgba(0, 255, 255, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-size: 0.9em;
+      border-left: 5px solid transparent;
+    }
+    .history-card:hover {
+      transform: translateX(5px);
+      box-shadow: var(--border-glow-strength) rgba(0, 255, 255, 0.3);
+    }
+    .history-card.yellow {
+      border-left-color: var(--neon-yellow);
+      box-shadow: var(--border-glow-strength) rgba(255, 255, 0, 0.2);
+    }
+    .history-card.green {
+      border-left-color: var(--neon-green);
+      box-shadow: var(--border-glow-strength) rgba(58, 255, 149, 0.2);
+    }
+    .history-card.red {
+      border-left-color: var(--neon-red);
+      box-shadow: var(--border-glow-strength) rgba(255, 77, 77, 0.2);
+    }
+    .history-card div strong {
+      color: var(--neon-cyan);
+      text-shadow: var(--text-glow-strength) rgba(0, 255, 255, 0.5);
+    }
+    .history-card div i {
+      margin-right: 6px;
+      color: var(--neon-blue);
+    }
+    .history-actions i {
+      margin-left: 15px;
+      font-size: 1.3em;
+      cursor: pointer;
+      transition: color 0.2s ease, transform 0.2s ease;
+      filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+    }
+    .fa-trash-alt {
+      color: var(--neon-red);
+    }
+    .fa-trash-alt:hover {
+      transform: scale(1.2);
+      color: #ff0000;
+    }
+    .spinner {
+      animation: spin 1.5s linear infinite;
+      color: var(--neon-yellow);
+      filter: drop-shadow(0 0 5px var(--neon-yellow));
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .win-icon {
+      animation: bounce 0.8s ease-in-out infinite;
+      color: var(--neon-green);
+      filter: drop-shadow(0 0 5px var(--neon-green));
+    }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+    .loss-icon {
+      animation: shake 0.6s ease-in-out infinite;
+      color: var(--neon-red);
+      filter: drop-shadow(0 0 5px var(--neon-red));
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    /* Countdown Timer Specific Styles */
+    .countdown-timer-card {
+      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); /* Gradient background for timer card */
+      border-radius: 20px;
+      box-shadow: var(--border-glow-strength) var(--neon-purple), inset 0 0 10px rgba(160, 80, 255, 0.3);
+      padding: 20px;
+      margin-top: 25px;
+      text-align: center;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5em; /* Large font for timer */
+      font-weight: 700;
+      text-shadow: 0 0 15px var(--neon-cyan); /* Strong text glow */
+      letter-spacing: 3px; /* Spacing for digital look */
+      animation: pulseGlow 2s infinite alternate; /* Pulsing glow effect */
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: var(--border-glow-strength) var(--neon-purple); text-shadow: 0 0 10px var(--neon-cyan); }
+      100% { box-shadow: var(--border-glow-strength) var(--neon-blue); text-shadow: 0 0 25px var(--neon-cyan); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="loginContainer">
+    <div class="login-box">
+      <h2>FLETXO FLEET</h2>
+      <input type="text" id="edktKey" placeholder="Enter Access Key (EDKT)">
+      <button id="loginButton" onclick="login()">LOGIN</button>
+      <div class="error" id="errorBox"></div>
+    </div>
+  </div>
+
+  <div id="predictor-content">
+    <div class="container">
+      <div class="wrapper">
+        <svg viewBox="0 0 400 70">
+          <text x="50%" y="50%" dy=".35em" text-anchor="middle">
+            𝗙𝗟𝗘𝗧𝗫𝗢 𝗙𝗟𝗘𝗘𝗧
+          </text>
+        </svg>
+      </div>
+
+      <div class="countdown-timer-card" id="countdownTimer">00:00</div>
+
+      <div class="card">
+        <div class="period-label"><i class="fa-solid fa-calendar-days"></i> Current Period</div>
+        <input type="text" id="periodDisplay" class="period-input" value="-" readonly />
+        <div class="result-section">
+          <span><i class="fa-solid fa-chart-bar"></i> Prediction</span>
+          <span class="big-text" id="predictionDisplay">-</span>
+          <span class="opposite-number" id="oppositeNumberDisplay">-</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="dashboard-title">Analysis Dashboard</div>
+        <div class="info-row"><span><i class="fa-solid fa-percent"></i> Win Rate</span><span id="accuracy">0%</span></div>
+        <div class="info-row"><span><i class="fa-solid fa-trophy"></i> Wins</span><span id="wins">0</span></div>
+        <div class="info-row"><span><i class="fa-solid fa-skull-crossbones"></i> Losses</span><span id="losses">0</span></div>
+        <div class="info-row"><span><i class="fa-solid fa-server"></i> Server Status</span><span class="connected">Connected</span></div>
+      </div>
+
+      <div class="footer">TG @FLETXO1</div>
+
+      <div class="history-title">Prediction History</div>
+      <div id="historyContainer"></div>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+  // Firebase Configuration - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzOKZZAxoBc9OPJeI13H5B7Ap8Aj2PbpY",
+    databaseURL: "https://lwfle-89726-default-rtdb.firebaseio.com/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // --- DOM Elements ---
+  const loginContainer = document.getElementById("loginContainer");
+  const keyInput = document.getElementById("edktKey");
+  const loginButton = document.getElementById("loginButton");
+  const errorBox = document.getElementById("errorBox");
+  const predictorContent = document.getElementById("predictor-content");
+  const countdownTimerDisplay = document.getElementById("countdownTimer"); // New timer display element
+
+  // --- Global Variables for Predictor ---
+  let historyData = [];
+  let lastFetchedPeriod = null;
+  let lastPrediction = null;
+  let lastOppositeNumber = null;
+  let globalPrediction = null;
+  let predictorInterval = null; // Interval for the main prediction cycle
+  let countdownSeconds = 60; // Initial countdown value (1 minute)
+  let countdownInterval = null; // Interval for the visual countdown timer
+
+  // --- Device ID Management ---
+  let deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = "device-" + Math.random().toString(36).substring(2, 15) + Date.now();
+    localStorage.setItem("deviceId", deviceId);
+  }
+
+  // --- Login Function ---
+  async function login() {
+    const key = keyInput.value.trim();
+    errorBox.innerText = "";
+    if (!key) {
+      errorBox.innerText = "Key cannot be empty.";
+      return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.innerText = "Logging in...";
+
+    try {
+      const keyRef = db.ref("accessKeys/" + key);
+      const snapshot = await keyRef.once("value");
+
+      if (!snapshot.exists()) {
+        errorBox.innerText = "❌ Invalid key.";
+        return;
+      }
+
+      const data = snapshot.val();
+      const now = Date.now();
+
+      if (data.expiresAt && now > data.expiresAt) {
+        errorBox.innerText = "❌ Key has expired.";
+        return;
+      }
+
+      // --- One Device, One Key Logic ---
+      if (data.device && data.device !== deviceId) {
+        // Key is in use on another device. Transfer it.
+        console.warn(`Key "${key}" is being transferred from device "${data.device}" to "${deviceId}"`);
+      }
+
+      // Update key in Firebase: set current deviceId and last used time
+      await keyRef.update({
+        device: deviceId,
+        lastUsedAt: now
+      });
+
+      localStorage.setItem("userKey", key); // Store key for auto-login
+      
+      // --- Show Predictor UI ---
+      loginContainer.style.display = "none"; // Hide login
+      predictorContent.style.display = "block"; // Show predictor
+
+      // Initialize Predictor Logic
+      startPredictor();
+
+    } catch (err) {
+      console.error("Firebase login error:", err);
+      if (err.code && err.code === "PERMISSION_DENIED") {
+        errorBox.innerText = "Access denied. Check Firebase rules.";
+      } else {
+        errorBox.innerText = "Login failed. Please try again or check your internet connection.";
+      }
+    } finally {
+      loginButton.disabled = false;
+      loginButton.innerText = "LOGIN";
+    }
+  }
+
+  // --- Auto-Login on Page Load ---
+  async function autoLogin() {
+    const storedKey = localStorage.getItem("userKey");
+    if (!storedKey) {
+      // No stored key, show login page
+      loginContainer.style.display = "flex";
+      predictorContent.style.display = "none";
+      return;
+    }
+
+    // Attempt to validate stored key silently
+    try {
+      const keyRef = db.ref("accessKeys/" + storedKey);
+      const snapshot = await keyRef.once("value");
+
+      if (!snapshot.exists()) {
+        localStorage.removeItem("userKey"); // Key no longer exists
+        localStorage.removeItem("deviceId"); // Clear deviceId too
+        loginContainer.style.display = "flex";
+        predictorContent.style.display = "none";
+        return;
+      }
+
+      const data = snapshot.val();
+      const now = Date.now();
+
+      if (data.expiresAt && now > data.expiresAt) {
+        localStorage.removeItem("userKey"); // Key expired
+        localStorage.removeItem("deviceId");
+        errorBox.innerText = "❌ Your key has expired. Please get a new one.";
+        loginContainer.style.display = "flex";
+        predictorContent.style.display = "none";
+        return;
+      }
+
+      if (data.device !== deviceId) {
+        // Key is in use on another device or was transferred.
+        // User needs to re-login to "transfer" it back.
+        localStorage.removeItem("userKey");
+        errorBox.innerText = "❌ Key in use on another device. Re-enter key to transfer.";
+        loginContainer.style.display = "flex";
+        predictorContent.style.display = "none";
+        return;
+      }
+
+      // If we reach here, key is valid, not expired, and tied to this device.
+      // Update lastUsedAt just to keep it fresh.
+      await keyRef.update({
+        lastUsedAt: now
+      });
+
+      // Show Predictor UI
+      loginContainer.style.display = "none";
+      predictorContent.style.display = "block";
+      startPredictor();
+
+    } catch (err) {
+      console.error("Auto-login error:", err);
+      localStorage.removeItem("userKey");
+      localStorage.removeItem("deviceId");
+      errorBox.innerText = "Auto-login failed. Please try logging in manually.";
+      loginContainer.style.display = "flex";
+      predictorContent.style.display = "none";
+    }
+  }
+
+  // --- Predictor Functions ---
+
+  // Helper to get opposite number based on prediction (BIG/SMALL)
+  function getOppositeNumber(prediction) {
+    const smallNumbers = [1, 2, 3, 4, 0];
+    const bigNumbers = [8, 9, 7, 6, 5];
+    let arr = prediction === "BIG" ? smallNumbers : bigNumbers;
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // AI Prediction Logic (Ultra AI Predict)
+  function ultraAIPredict(history) {
+    if (history.length < 5) {
+      return { prediction: Math.random() > 0.5 ? "BIG" : "SMALL" };
+    }
+    let recentResults = history.filter(h => h.result !== "-").slice(0, 5);
+    let bigCount = 0;
+    let smallCount = 0;
+    let weight = 1;
+    for (let i = recentResults.length - 1; i >= 0; i--) {
+      let result = recentResults[i].result;
+      if (result >= 5) {
+        bigCount += weight;
+      } else {
+        smallCount += weight;
+      }
+      weight *= 1.2;
+    }
+    return { prediction: bigCount > smallCount ? "BIG" : "SMALL" };
+  }
+
+  // Update the status (WIN/LOSS) of the last prediction based on the actual result
+  function updateLastStatus(actualNumber) {
+    const actualCategory = actualNumber >= 5 ? 'BIG' : 'SMALL';
+    const match = actualCategory === lastPrediction;
+    lastStatus = match ? 'WIN' : 'LOSS';
+  }
+
+  // Fetch game result from external API
+  async function fetchGameResult() {
+    try {
+      let response = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pageSize: 10, pageNo: 1, typeId: 1, language: 0,
+          random: "4a0522c6ecd8410496260e686be2a57c",
+          signature: "334B5E70A0C9B8918B0B15E517E2069C",
+          timestamp: Math.floor(Date.now() / 1000)
+        })
+      });
+      let data = await response.json();
+      return data?.data?.list?.[0] || null;
+    } catch (e) {
+      console.error("API Error fetching game result:", e);
+      return null;
+    }
+  }
+
+  // Main function to update prediction and history
+  async function updatePredictionAndTimerReset() {
+    let result = await fetchGameResult();
+    
+    if (!result) {
+        console.warn("No API result or API error.");
+        // If API fails, we might still want to reset timer and try again
+        resetCountdownAndPredictionCycle();
+        return;
+    }
+
+    // Only update if the period has actually changed
+    if (result.issueNumber === lastFetchedPeriod) {
+        // console.log("Period not changed, waiting for next period.");
+        // If period hasn't changed, just keep the timer running
+        return;
+    }
+
+    // If there's a pending prediction in history, update its status
+    if (historyData.length > 0 && historyData[0].resultStatus === "Pending") {
+      const actualNumber = Number(result.number);
+      updateLastStatus(actualNumber);
+      historyData[0].result = actualNumber;
+      historyData[0].resultStatus = lastStatus;
+    }
+
+    // Generate a new AI prediction for the upcoming period
+    const aiDecision = ultraAIPredict(historyData);
+    lastPrediction = aiDecision.prediction;
+    lastOppositeNumber = getOppositeNumber(lastPrediction);
+    globalPrediction = lastPrediction;
+
+    let nextPeriodFull = (BigInt(result.issueNumber) + 1n).toString();
+    let nextPeriod = nextPeriodFull.slice(-4);
+
+    // Update UI for current prediction
+    document.getElementById("periodDisplay").value = nextPeriod;
+    document.getElementById("predictionDisplay").innerText = globalPrediction;
+    document.getElementById("oppositeNumberDisplay").innerText = lastOppositeNumber;
+
+    // Add the new prediction to history (as pending)
+    historyData.unshift({
+      period: nextPeriod,
+      prediction: globalPrediction,
+      oppositeNumber: lastOppositeNumber,
+      result: "-",
+      resultStatus: "Pending"
+    });
+
+    if (historyData.length > 20) {
+        historyData.pop();
+    }
+
+    updateHistory();
+    updateStats();
+    lastFetchedPeriod = result.issueNumber;
+
+    // Reset and start the countdown timer after a successful prediction update
+    resetCountdownAndPredictionCycle();
+  }
+
+  // Function to reset the countdown and start the next prediction cycle
+  function resetCountdownAndPredictionCycle() {
+      clearInterval(countdownInterval); // Clear any existing countdown
+      countdownSeconds = 60; // Reset to 60 seconds
+      updateCountdownDisplay(); // Update display immediately
+      countdownInterval = setInterval(() => {
+          countdownSeconds--;
+          updateCountdownDisplay();
+          if (countdownSeconds <= 0) {
+              // When countdown ends, clear it and immediately trigger a new prediction update
+              clearInterval(countdownInterval);
+              updatePredictionAndTimerReset(); // This will fetch new data and restart timer
+          }
+      }, 1000);
+  }
+
+  // Update the visual countdown display
+  function updateCountdownDisplay() {
+      const minutes = Math.floor(countdownSeconds / 60);
+      const seconds = countdownSeconds % 60;
+      countdownTimerDisplay.innerText = 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  // Delete an entry from history
+  function deleteHistory(index) {
+    historyData.splice(index, 1);
+    updateHistory();
+    updateStats();
+  }
+
+  // Update history UI
+  function updateHistory() {
+    const container = document.getElementById("historyContainer");
+    container.innerHTML = historyData.map((item, index) => {
+      let color = item.resultStatus === "WIN" ? "green" : item.resultStatus === "LOSS" ? "red" : "yellow";
+      let iconClass = item.resultStatus === "WIN" ? "fa-circle-check win-icon" :
+                      item.resultStatus === "LOSS" ? "fa-circle-xmark loss-icon" :
+                      "fa-spinner spinner";
+      return `<div class="history-card ${color}">
+        <div style="flex: 1;">
+          <div><strong><i class="fa fa-calendar-alt"></i> P-${item.period}</strong></div>
+          <div><i class="fa fa-chart-line"></i> ${item.prediction} | <i class="fa fa-sync-alt"></i> ${item.oppositeNumber}</div>
+          <div><i class="fa fa-dice"></i> ${item.result !== "-" ? item.result : "Waiting..."}</div>
+        </div>
+        <div class="history-actions">
+          <i class="fa ${iconClass}"></i>
+          <i class="fa-solid fa-trash-alt" onclick="deleteHistory(${index})"></i>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // Update dashboard statistics
+  function updateStats() {
+    const wins = historyData.filter(item => item.resultStatus === "WIN").length;
+    const losses = historyData.filter(item => item.resultStatus === "LOSS").length;
+    const total = wins + losses;
+    const accuracy = total > 0 ? ((wins / total) * 100).toFixed(2) : 0;
+    document.getElementById("wins").textContent = wins;
+    document.getElementById("losses").textContent = losses;
+    document.getElementById("accuracy").textContent = `${accuracy}%`;
+  }
+
+  // Function to start the predictor's intervals
+  function startPredictor() {
+    // Initial fetch and start countdown
+    updatePredictionAndTimerReset();
+  }
+
+  // --- Initial Load ---
+  document.addEventListener('DOMContentLoaded', autoLogin); // Attempt auto-login when DOM is ready
+</script>
+</body>
+</html>
